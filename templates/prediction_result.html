@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Result - Car Rental System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-4">
+            <h1 class="display-5 text-success">
+                <i class="bi bi-check-circle-fill"></i> 
+                Prediction Successful!
+            </h1>
+            <p class="lead text-muted">
+                Here's your car rental price prediction
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Main Prediction Result -->
+<div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-lg">
+            <div class="card-body p-5">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center">
+                        <div class="mb-4">
+                            <i class="bi bi-car-front-fill text-primary" style="font-size: 4rem;"></i>
+                        </div>
+                        <h3 class="text-primary mb-3">{{ vehicle_info }}</h3>
+                        <div class="prediction-price">
+                            <h1 class="display-4 text-success fw-bold mb-0">
+                                ${{ predicted_price }}
+                            </h1>
+                            <p class="text-muted fs-5">per day</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        {% if plot_image %}
+                        <div class="text-center">
+                            <img src="data:image/png;base64,{{ plot_image }}" 
+                                 class="img-fluid rounded shadow" 
+                                 alt="Price Comparison Chart"
+                                 style="max-height: 300px;">
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted">
+                            <i class="bi bi-graph-up fs-1"></i>
+                            <p class="mt-2">Chart not available</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Information -->
+<div class="row mb-5">
+    <!-- Vehicle Details -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-car-front"></i> Vehicle Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Make:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('vehicle.make', 'N/A') }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Model:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('vehicle.model', 'N/A') }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Year:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('vehicle.year', 'N/A') }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Type:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('vehicle.type', 'N/A') }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Fuel Type:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('fuelType', 'N/A') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Details -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-geo-alt"></i> Location Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>City:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('location.city', 'N/A') }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>State:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('location.state', 'N/A') }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Country:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('location.country', 'N/A') }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Latitude:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ "%.4f"|format(input_data.get('location.latitude', 0)) }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Longitude:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ "%.4f"|format(input_data.get('location.longitude', 0)) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating & Statistics -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-star-fill"></i> Rating & Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Rating:</strong>
+                    </div>
+                    <div class="col-6">
+                        <span class="text-warning">
+                            {% for i in range(input_data.get('rating', 0)|int) %}
+                                <i class="bi bi-star-fill"></i>
+                            {% endfor %}
+                            {% if input_data.get('rating', 0) % 1 >= 0.5 %}
+                                <i class="bi bi-star-half"></i>
+                            {% endif %}
+                        </span>
+                        ({{ "%.1f"|format(input_data.get('rating', 0)) }})
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Trips Taken:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('renterTripsTaken', 0) }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Reviews:</strong>
+                    </div>
+                    <div class="col-6">
+                        {{ input_data.get('reviewCount', 0) }}
+                    </div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-12">
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i> 
+                            Predicted on {{ prediction_date.strftime('%B %d, %Y at %I:%M %p') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12 text-center">
+        <div class="btn-group-lg">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg me-3">
+                <i class="bi bi-arrow-left"></i> Make Another Prediction
+            </a>
+            <a href="{{ url_for('prediction_history') }}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-clock-history"></i> View Prediction History
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 

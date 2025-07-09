@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Error - Car Rental System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Prediction Failed
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger" role="alert">
+                    <h5 class="alert-heading">
+                        <i class="bi bi-x-circle"></i> Sorry, we couldn't process your prediction
+                    </h5>
+                    <p class="mb-3">{{ error_message if error_message else "An unexpected error occurred while processing your request." }}</p>
+                    <hr>
+                    <p class="mb-0">
+                        <strong>Error Details:</strong> {{ error_details if error_details else "Please try again with different input values." }}
+                    </p>
+                </div>
+
+                {% if input_data %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-info-circle"></i> Your Input Data</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Vehicle Information</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Make:</strong> {{ input_data.get('vehicle.make', 'N/A') }}</li>
+                                    <li><strong>Model:</strong> {{ input_data.get('vehicle.model', 'N/A') }}</li>
+                                    <li><strong>Year:</strong> {{ input_data.get('vehicle.year', 'N/A') }}</li>
+                                    <li><strong>Type:</strong> {{ input_data.get('vehicle.type', 'N/A') }}</li>
+                                    <li><strong>Fuel Type:</strong> {{ input_data.get('fuelType', 'N/A') }}</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Location & Rating</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>City:</strong> {{ input_data.get('location.city', 'N/A') }}</li>
+                                    <li><strong>State:</strong> {{ input_data.get('location.state', 'N/A') }}</li>
+                                    <li><strong>Country:</strong> {{ input_data.get('location.country', 'N/A') }}</li>
+                                    <li><strong>Rating:</strong> {{ input_data.get('rating', 'N/A') }}</li>
+                                    <li><strong>Trips Taken:</strong> {{ input_data.get('renterTripsTaken', 'N/A') }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-lightbulb"></i> Troubleshooting Tips</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li><strong>Check your input values:</strong> Make sure all required fields are filled and values are reasonable</li>
+                            <li><strong>Try different data:</strong> Some combinations might not have enough training data</li>
+                            <li><strong>Verify coordinates:</strong> Ensure latitude/longitude values are valid</li>
+                            <li><strong>Check data ranges:</strong> Vehicle year should be realistic, rating between 0-5</li>
+                            <li><strong>Refresh and retry:</strong> Sometimes temporary issues resolve themselves</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg me-3">
+                        <i class="bi bi-arrow-left"></i> Try Again
+                    </a>
+                    <a href="{{ url_for('prediction_history') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-clock-history"></i> View History
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Details (Collapsible) -->
+        {% if error_technical %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#technicalDetails">
+                    <i class="bi bi-code-slash"></i> Technical Details (Click to expand)
+                </button>
+            </div>
+            <div class="collapse" id="technicalDetails">
+                <div class="card-body">
+                    <pre class="bg-light p-3 rounded"><code>{{ error_technical }}</code></pre>
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> 
+                        This information can be helpful for debugging. Please include this if reporting the issue.
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-scroll to top on page load
+window.scrollTo(0, 0);
+
+// Optional: Auto-hide technical details after 10 seconds if opened
+document.addEventListener('DOMContentLoaded', function() {
+    const technicalDetails = document.getElementById('technicalDetails');
+    if (technicalDetails) {
+        technicalDetails.addEventListener('shown.bs.collapse', function() {
+            setTimeout(function() {
+                if (technicalDetails.classList.contains('show')) {
+                    const button = document.querySelector('[data-bs-target="#technicalDetails"]');
+                    if (button) {
+                        button.click();
+                    }
+                }
+            }, 10000); // Hide after 10 seconds
+        });
+    }
+});
+</script>
+{% endblock %} 

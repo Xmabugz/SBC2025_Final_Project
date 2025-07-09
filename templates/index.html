@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Car Rental Prediction System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="display-4 text-center mb-4">
+            <i class="bi bi-graph-up text-primary"></i> 
+            Car Rental Price Prediction
+        </h1>
+        <p class="lead text-center text-muted mb-5">
+            Use machine learning to predict daily rental rates for vehicles
+        </p>
+    </div>
+</div>
+
+
+<div class="row">
+    <!-- Prediction Form -->
+    <div class="col-lg-8 mb-4">
+        <div class="card prediction-form p-4">
+            <h3 class="card-title mb-4">
+                <i class="bi bi-calculator"></i> Make a Prediction
+            </h3>
+            
+            <form id="predictionForm" method="POST" action="{{ url_for('predict') }}">
+                <div class="row">
+                    <!-- Vehicle Information -->
+                    <div class="col-md-6">
+                        <h5 class="text-primary mb-3">Vehicle Information</h5>
+                        
+                        <div class="mb-3">
+                            <label for="vehicle.make" class="form-label">Make</label>
+                            <select class="form-select" name="vehicle.make" required>
+                                <option value="">Select Make</option>
+                                {% if dropdown_data and dropdown_data.makes %}
+                                    {% for make in dropdown_data.makes %}
+                                        <option value="{{ make }}">{{ make }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="vehicle.model" class="form-label">Model</label>
+                            <select class="form-select" name="vehicle.model" required>
+                                <option value="">Select Model</option>
+                                {% if dropdown_data and dropdown_data.models %}
+                                    {% for model in dropdown_data.models %}
+                                        <option value="{{ model }}">{{ model }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="vehicle.year" class="form-label">Year</label>
+                            <select class="form-select" name="vehicle.year" required>
+                                <option value="">Select Year</option>
+                                {% if dropdown_data and dropdown_data.years %}
+                                    {% for year in dropdown_data.years %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="vehicle.type" class="form-label">Vehicle Type</label>
+                            <select class="form-select" name="vehicle.type" required>
+                                <option value="">Select Type</option>
+                                {% if dropdown_data and dropdown_data.types %}
+                                    {% for type in dropdown_data.types %}
+                                        <option value="{{ type }}">{{ type }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="fuelType" class="form-label">Fuel Type</label>
+                            <select class="form-select" name="fuelType" required>
+                                <option value="">Select Fuel Type</option>
+                                {% if dropdown_data and dropdown_data.fuel_types %}
+                                    {% for fuel_type in dropdown_data.fuel_types %}
+                                        <option value="{{ fuel_type }}">{{ fuel_type }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Location & Rating Information -->
+                    <div class="col-md-6">
+                        <h5 class="text-primary mb-3">Location & Rating</h5>
+                        
+                        <div class="mb-3">
+                            <label for="location.city" class="form-label">City</label>
+                            <select class="form-select" name="location.city" required>
+                                <option value="">Select City</option>
+                                {% if dropdown_data and dropdown_data.cities %}
+                                    {% for city in dropdown_data.cities %}
+                                        <option value="{{ city }}">{{ city }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="location.state" class="form-label">State</label>
+                            <select class="form-select" name="location.state" required>
+                                <option value="">Select State</option>
+                                {% if dropdown_data and dropdown_data.states %}
+                                    {% for state in dropdown_data.states %}
+                                        <option value="{{ state }}">{{ state }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="location.country" class="form-label">Country</label>
+                            <select class="form-select" name="location.country" required>
+                                <option value="">Select Country</option>
+                                {% if dropdown_data and dropdown_data.countries %}
+                                    {% for country in dropdown_data.countries %}
+                                        <option value="{{ country }}">{{ country }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="location.latitude" class="form-label">Latitude</label>
+                                    <input type="number" step="any" class="form-control" name="location.latitude" value="0" required>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="location.longitude" class="form-label">Longitude</label>
+                                    <input type="number" step="any" class="form-control" name="location.longitude" value="0" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="mb-3">
+                                    <label for="rating" class="form-label">Rating</label>
+                                    <input type="number" step="0.1" min="0" max="5" class="form-control" name="rating" value="4.5" required>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mb-3">
+                                    <label for="renterTripsTaken" class="form-label">Trips Taken</label>
+                                    <input type="number" min="0" class="form-control" name="renterTripsTaken" value="10" required>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mb-3">
+                                    <label for="reviewCount" class="form-label">Review Count</label>
+                                    <input type="number" min="0" class="form-control" name="reviewCount" value="50" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="fullPageResult" name="fullPageResult">
+                        <label class="form-check-label" for="fullPageResult">
+                            Show detailed result page (instead of popup)
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-graph-up-arrow"></i> Predict Price
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Recent Predictions -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history"></i> Recent Predictions
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_predictions %}
+                    <div class="list-group list-group-flush">
+                        {% for prediction in recent_predictions %}
+                        <div class="list-group-item prediction-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ prediction.vehicle_info }}</h6>
+                                    <p class="mb-1 text-success fw-bold">${{ "%.2f"|format(prediction.predicted_price) }}/day</p>
+                                    <small class="text-muted">{{ prediction.prediction_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('prediction_history') }}" class="btn btn-outline-primary btn-sm">
+                            View All Predictions
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <p class="mt-2">No predictions yet</p>
+                        <small>Make your first prediction using the form!</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prediction Result Modal -->
+<div class="modal fade" id="resultModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Prediction Result</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="resultContent">
+                    <!-- Results will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#predictionForm').on('submit', function(e) {
+        // Check if user wants full page result
+        if ($('#fullPageResult').is(':checked')) {
+            // Let the form submit normally for full page result
+            return true;
+        }
+        
+        e.preventDefault();
+        
+        const form = $(this);
+        const submitBtn = form.find('button[type="submit"]');
+        const originalText = submitBtn.html();
+        
+        // Show loading state
+        submitBtn.html('<i class="spinner-border spinner-border-sm me-2"></i>Predicting...');
+        submitBtn.prop('disabled', true);
+        
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            headers: {
+                'Accept': 'application/json'
+            },
+            success: function(response) {
+                if (response.success) {
+                    const resultHtml = `
+                        <div class="text-center">
+                            <h4 class="text-success mb-3">
+                                <i class="bi bi-check-circle"></i> Prediction Successful!
+                            </h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${response.vehicle_info}</h5>
+                                            <h2 class="text-primary">$${response.predicted_price}/day</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <img src="data:image/png;base64,${response.plot_image}" 
+                                         class="img-fluid rounded" alt="Price Comparison">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $('#resultContent').html(resultHtml);
+                    $('#resultModal').modal('show');
+                    
+                    // Refresh page after closing modal to show updated recent predictions
+                    $('#resultModal').on('hidden.bs.modal', function() {
+                        location.reload();
+                    });
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function(xhr) {
+                const response = JSON.parse(xhr.responseText);
+                alert('Error: ' + response.error);
+            },
+            complete: function() {
+                // Restore button state
+                submitBtn.html(originalText);
+                submitBtn.prop('disabled', false);
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

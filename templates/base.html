@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Car Rental Prediction System{% endblock %}</title>
+    {{ bootstrap.load_css() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .prediction-card {
+            transition: transform 0.2s;
+        }
+        .prediction-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .prediction-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-car-front"></i> Car Rental ML
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="bi bi-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('prediction_history') }}">
+                            <i class="bi bi-clock-history"></i> Prediction History
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('data_overview') }}" onclick="showDataOverview(); return false;">
+                            <i class="bi bi-graph-up"></i> Data Overview
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">
+                <i class="bi bi-cpu"></i> Car Rental ML Prediction System
+                <span class="mx-2">|</span>
+                <small>Powered by Flask & Machine Learning</small>
+            </p>
+        </div>
+    </footer>
+
+    {{ bootstrap.load_js() }}
+    
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Show data overview modal
+        function showDataOverview() {
+            fetch('{{ url_for("data_overview") }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const stats = data.data_stats;
+                        const modalHtml = `
+                            <div class="modal fade" id="dataOverviewModal" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"><i class="bi bi-graph-up"></i> Dataset Overview</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="card mb-3">
+                                                        <div class="card-header"><strong>🚗 Vehicle Data</strong></div>
+                                                        <div class="card-body">
+                                                            <p><strong>Unique Vehicles:</strong> ${stats.vehicles.total_unique}</p>
+                                                            <p><strong>Makes:</strong> ${stats.vehicles.makes}</p>
+                                                            <p><strong>Models:</strong> ${stats.vehicles.models}</p>
+                                                            <p><strong>Year Range:</strong> ${stats.vehicles.year_range}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card mb-3">
+                                                        <div class="card-header"><strong>💰 Pricing Data</strong></div>
+                                                        <div class="card-body">
+                                                            <p><strong>Average Rate:</strong> ${stats.pricing.avg_daily_rate}</p>
+                                                            <p><strong>Min Rate:</strong> ${stats.pricing.min_daily_rate}</p>
+                                                            <p><strong>Max Rate:</strong> ${stats.pricing.max_daily_rate}</p>
+                                                            <p><strong>Median Rate:</strong> ${stats.pricing.median_daily_rate}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="card mb-3">
+                                                        <div class="card-header"><strong>📍 Location Data</strong></div>
+                                                        <div class="card-body">
+                                                            <p><strong>Unique Locations:</strong> ${stats.locations.total_unique}</p>
+                                                            <p><strong>Cities:</strong> ${stats.locations.cities}</p>
+                                                            <p><strong>States:</strong> ${stats.locations.states}</p>
+                                                            <p><strong>Countries:</strong> ${stats.locations.countries}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card mb-3">
+                                                        <div class="card-header"><strong>⭐ Review Data</strong></div>
+                                                        <div class="card-body">
+                                                            <p><strong>Average Rating:</strong> ${stats.ratings.avg_rating}</p>
+                                                            <p><strong>Total Reviews:</strong> ${stats.ratings.total_reviews.toLocaleString()}</p>
+                                                            <p><strong>Avg Trips:</strong> ${stats.ratings.avg_trips}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="alert alert-info">
+                                                <strong>Total Records:</strong> ${stats.total_records.toLocaleString()} rental records loaded from CSV file
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Remove existing modal if any
+                        const existingModal = document.getElementById('dataOverviewModal');
+                        if (existingModal) {
+                            existingModal.remove();
+                        }
+                        
+                        // Add modal to page
+                        document.body.insertAdjacentHTML('beforeend', modalHtml);
+                        
+                        // Show modal
+                        const modal = new bootstrap.Modal(document.getElementById('dataOverviewModal'));
+                        modal.show();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data overview:', error);
+                    alert('Error loading data overview');
+                });
+        }
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

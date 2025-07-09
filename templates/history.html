@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction History - Car Rental Prediction System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-clock-history text-primary"></i> Prediction History</h2>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Make New Prediction
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if predictions %}
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">All Predictions ({{ predictions|length }} total)</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Vehicle</th>
+                                <th>Predicted Price</th>
+                                <th>Input Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prediction in predictions %}
+                            <tr>
+                                <td>
+                                    <div class="text-nowrap">
+                                        <i class="bi bi-calendar-date text-muted"></i>
+                                        {{ prediction.prediction_date.strftime('%Y-%m-%d') }}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i>
+                                        {{ prediction.prediction_date.strftime('%H:%M:%S') }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ prediction.vehicle_info }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success fs-6">
+                                        ${{ "%.2f"|format(prediction.predicted_price) }}/day
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('view_prediction', prediction_id=prediction.id) }}" 
+                                           class="btn btn-primary">
+                                            <i class="bi bi-eye"></i> View Full Result
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Detail Modal -->
+                                    <div class="modal fade" id="detailModal{{ prediction.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Prediction Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <h6 class="text-primary">Vehicle Information</h6>
+                                                    <p class="fw-bold">{{ prediction.vehicle_info }}</p>
+                                                    
+                                                    <h6 class="text-primary mt-3">Predicted Price</h6>
+                                                    <p class="fs-4 text-success">${{ "%.2f"|format(prediction.predicted_price) }}/day</p>
+                                                    
+                                                    <h6 class="text-primary mt-3">Input Data</h6>
+                                                    {% if prediction.input_data %}
+                                                        {% set input_dict = prediction.input_data|from_json %}
+                                                        <div class="row">
+                                                            {% for key, value in input_dict.items() %}
+                                                            <div class="col-6 mb-2">
+                                                                <small class="text-muted">{{ key }}:</small><br>
+                                                                <strong>{{ value }}</strong>
+                                                            </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h3 class="mt-3 text-muted">No Predictions Yet</h3>
+                <p class="text-muted">Start by making your first prediction using our machine learning model.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Make First Prediction
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
